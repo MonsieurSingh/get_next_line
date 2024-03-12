@@ -15,16 +15,25 @@ char	*get_next_line(int fd)
 	int		bytes_read;
 	int		b_size;
 	char	*temp;
+  static char  *bucket;
 
 	b_size = BUFFER_SIZE;
 //	printf("Buffer size: %d\n", b_size);
 	if (fd < 0)
 		return (NULL);
-	line = (char *)malloc(sizeof(char) * (b_size + 1));
+	bucket = (char *)malloc(sizeof(char) * BUFFER_SIZE);
 	if (!line)
 		return (NULL);
 	i = 0;
-	while ((bytes_read = (int)read(fd, &c, 1)) > 0)
+  read(fd, bucket, BUFFER_SIZE);
+  if (strchr(bucket, 10))
+  {
+    temp = strchr(bucket, 10);
+    line = (char *)malloc(sizeof(char) * (temp - bucket));
+    memcpy(line, bucket, temp - bucket);
+  }
+  return (line);
+	/* while ((bytes_read = (int)read(fd, &c, 1)) > 0)
 	{
 		if (i >= b_size)
 		{
@@ -44,11 +53,11 @@ char	*get_next_line(int fd)
 			line[i] = '\n';
 			line[++i] = '\0';
 			break ;
-		}
+		} */
 
 //		printf("%c", c);
-		line[i++] = c;
-	}
+//		line[i++] = c;
+//	}
 	if (bytes_read < 0 || (bytes_read == 0 && i == 0))
 	{
 		free(line);
