@@ -5,54 +5,56 @@
 //  Created by Devjyot Singh on 11/3/2024.
 //
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-char	*get_next_line(int fd)
+char	*init(void)
 {
-	char	*line;
-	char	c;
-	int		i;
-	int		bytes_read;
-	int		b_size;
-	char	*temp;
+	return ((char *)malloc(sizeof(char) * (BUFFER_SIZE + 1)));
+}
 
-	b_size = BUFFER_SIZE;
-//	printf("Buffer size: %d\n", b_size);
-	if (fd < 0)
-		return (NULL);
-	line = (char *)malloc(sizeof(char) * (b_size + 1));
-	if (!line)
-		return (NULL);
+int		byte_read(int fd, char *c, int *bytes_read)
+{
+	*bytes_read = (int)(read(fd, c, sizeof(char)));
+	return (*bytes_read);
+}
+
+char	*read_line(int fd, char *line)
+{
+	int		i;
+	char	c;
+	int	bytes_read;
+	
 	i = 0;
-	while ((bytes_read = (int)read(fd, &c, 1)) > 0)
+	while (byte_read(fd, &c, &bytes_read) > 0)
 	{
-		if (i >= b_size)
+		line[i++] = c;
+		if (i >= BUFFER_SIZE)
 		{
-			b_size *= 2;
-//			printf("New buffer size: %d\n", b_size);
-			temp = ft_realloc(line, b_size + 1);
-			if (!temp)
-			{
-				free(temp);
+			line = ft_realloc(line, i, i * 2);
+			if (!line)
 				return (NULL);
-			}
-//			free(line);
-			line = temp;
 		}
 		if (c == '\n')
-		{
-			line[i] = '\n';
-			line[++i] = '\0';
 			break ;
-		}
-
-//		printf("%c", c);
-		line[i++] = c;
 	}
 	if (bytes_read < 0 || (bytes_read == 0 && i == 0))
 	{
 		free(line);
 		return (NULL);
 	}
+	line[i] = '\0';
+	return (line);
+}
+
+char	*get_next_line(int fd)
+{
+	char	*line;
+	
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = init();
+	if (!line)
+		return (NULL);
+	line = read_line(fd, line);
 	return (line);
 }

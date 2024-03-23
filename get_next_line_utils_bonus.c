@@ -21,16 +21,27 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst);
 }
 
-void	*ft_realloc(void *ptr, size_t size)
+void	*ft_realloc(void *ptr, size_t size1, size_t size2)
 {
 	void	*new_ptr;
 	
 	if (ptr == NULL)
-		return (malloc(size));
-	if (!size)
-		return (ptr);
-	new_ptr = malloc(size);
-	ft_memcpy(new_ptr, ptr, size);
-	free(ptr);
+		return (malloc(size2));
+	if (size2 == 0)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	new_ptr = malloc(size2);
+	if (!new_ptr)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	if (new_ptr != NULL)
+	{
+		ft_memcpy(new_ptr, ptr, size1);
+		free(ptr);
+	}
 	return (new_ptr);
 }

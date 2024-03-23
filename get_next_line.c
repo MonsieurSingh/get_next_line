@@ -7,61 +7,54 @@
 
 #include "get_next_line.h"
 
-char	*get_next_line(int fd)
+char	*init(void)
 {
-	char	*line;
-	char	c;
-	int		i;
-	int		bytes_read;
-	int		b_size;
-	char	*temp;
-  static char  *bucket;
+	return ((char *)malloc(sizeof(char) * (BUFFER_SIZE + 1)));
+}
 
-	b_size = BUFFER_SIZE;
-//	printf("Buffer size: %d\n", b_size);
-	if (fd < 0)
-		return (NULL);
-	bucket = (char *)malloc(sizeof(char) * BUFFER_SIZE);
-	if (!line)
-		return (NULL);
+int		byte_read(int fd, char *c, int *bytes_read)
+{
+	*bytes_read = (int)(read(fd, c, sizeof(char)));
+	return (*bytes_read);
+}
+
+char	*read_line(int fd, char *line)
+{
+	int		i;
+	char	c;
+	int	bytes_read;
+
 	i = 0;
-  read(fd, bucket, BUFFER_SIZE);
-  if (strchr(bucket, 10))
-  {
-    temp = strchr(bucket, 10);
-    line = (char *)malloc(sizeof(char) * (temp - bucket));
-    memcpy(line, bucket, temp - bucket);
-  }
-  return (line);
-	/* while ((bytes_read = (int)read(fd, &c, 1)) > 0)
+	while (byte_read(fd, &c, &bytes_read) > 0)
 	{
-		if (i >= b_size)
+		line[i++] = c;
+		if (i >= BUFFER_SIZE)
 		{
-			b_size *= 2;
-//			printf("New buffer size: %d\n", b_size);
-			temp = ft_realloc(line, b_size + 1);
-			if (!temp)
-			{
-				free(temp);
+			line = ft_realloc(line, i, i * 2);
+			if (!line)
 				return (NULL);
-			}
-//			free(line);
-			line = temp;
 		}
 		if (c == '\n')
-		{
-			line[i] = '\n';
-			line[++i] = '\0';
 			break ;
-		} */
-
-//		printf("%c", c);
-//		line[i++] = c;
-//	}
+	}
 	if (bytes_read < 0 || (bytes_read == 0 && i == 0))
 	{
 		free(line);
 		return (NULL);
 	}
+	line[i] = '\0';
+	return (line);
+}
+
+char	*get_next_line(int fd)
+{
+	char	*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = init();
+	if (!line)
+		return (NULL);
+	line = read_line(fd, line);
 	return (line);
 }

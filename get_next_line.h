@@ -15,9 +15,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <libc.h>
 
 char	*get_next_line(int fd);
-void	*ft_realloc(void *ptr, size_t size);
+void	*ft_realloc(void *ptr, size_t size1, size_t size2);
 
 #endif /* get_next_line_h */
